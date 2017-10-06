@@ -23,7 +23,7 @@ const double Lf = 2.67;
 
 // Both the reference cross track and orientation errors are 0.
 // The reference velocity is set to 40 mph.
-double ref_v = 40;
+double ref_v = 70;
 double ref_cte = 0;
 double ref_epsi = 0;
 
@@ -55,8 +55,8 @@ public:
 
 		//cost based on reference state
 		for(int t=0;t<N;t++) {
-			fg[0] += 3000*CppAD::pow(vars[cte_start +t]-ref_cte,2);
-			fg[0] += 3000*CppAD::pow(vars[epsi_start + t] -ref_epsi,2);
+			fg[0] += 2000*CppAD::pow(vars[cte_start +t]-ref_cte,2);
+			fg[0] += 2000*CppAD::pow(vars[epsi_start + t] -ref_epsi,2);
 			fg[0] += CppAD::pow(vars[v_start +t] - ref_v,2);
 		}
 
@@ -64,7 +64,7 @@ public:
 		for(int t=0;t<N-1;t++) {
 			fg[0] += 5*CppAD::pow(vars[delta_start +t],2);
 			fg[0] += 5*CppAD::pow(vars[a_start + t],2);
-			fg[0] += 700*CppAD::pow(vars[delta_start + t] * vars[v_start+t], 2);
+			fg[0] += 500*CppAD::pow(vars[delta_start + t] * vars[v_start+t], 2);
 		}
 		// Minimize the value gap between sequential actuations.
 		for (int t = 0; t < N - 2; t++) {
@@ -99,8 +99,8 @@ public:
 			// Only consider the actuation at time t.
 			AD<double> delta0 = vars[delta_start + t - 1];
 			AD<double> a0 = vars[a_start + t - 1];
-			AD<double> f0 = coeffs[0] + coeffs[1] * x0;
-			AD<double> psides0 = CppAD::atan(coeffs[1]);
+			AD<double> f0 = coeffs[0] + coeffs[1] * x0 + coeffs[2] * x0 * x0 + coeffs[3] * x0 * x0 *x0;
+			AD<double> psides0 = CppAD::atan(3*coeffs[3]*x0*x0 + 2*coeffs[2]*x0 + coeffs[1]);
 
 			// Here's `x` to get you started.
 			// The idea here is to constraint this value to be 0.
